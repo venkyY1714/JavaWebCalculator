@@ -1,0 +1,45 @@
+pipeline {
+    agent any
+
+    environment {
+        IMAGE_NAME = 'java-web-calculator'
+        TAG = 'latest'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+               checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/prudhvisurya996/JavaWebCalculator']])
+            }
+        }
+        stage('Package') {
+            steps {
+                sh 'mvn package'
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // Build Docker image
+                    docker.build("${IMAGE_NAME}:${TAG}")
+                }
+            }
+        }
+        stage('Run Docker Container') {
+            steps {
+                script {
+                    // Run Docker container from the built image
+                    sh "docker run -d -p 9090:8080 --name ${IMAGE_NAME}_container ${IMAGE_NAME}:${TAG}"
+                }
+            }
+        }
+    }
+}
+    //post {
+     //   always {
+            // Clean up Docker container and image (optional)
+          //  sh "docker rm -f ${IMAGE_NAME}_container || true"
+          //  sh "docker rmi ${IMAGE_NAME}:${TAG} || true"
+      //  }
+ //   }
+
