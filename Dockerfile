@@ -1,4 +1,3 @@
-# Use the official Tomcat image
 FROM tomcat:9-jdk17
 
 # Create the Jenkins user and add it to sudoers
