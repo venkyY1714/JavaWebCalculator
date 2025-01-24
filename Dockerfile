@@ -1,6 +1,5 @@
 FROM tomcat:9-jdk17
 
-# Create the Jenkins user and add it to sudoers
 RUN useradd -ms /bin/bash jenkins
 RUN echo "jenkins ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
