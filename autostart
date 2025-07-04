@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# Create systemd service file for Tomcat with JDK 17
+cat <<EOF > /etc/systemd/system/tomcat.service
+[Unit]
+Description=Apache Tomcat Web Application Container
+After=network.target
+
+[Service]
+Type=forking
+
+User=ubuntu
+Group=ubuntu
+
+Environment=JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+Environment=CATALINA_PID=/opt/tomcat9/temp/tomcat.pid
+Environment=CATALINA_HOME=/opt/tomcat9
+Environment=CATALINA_BASE=/opt/tomcat9
+Environment='CATALINA_OPTS=-Xms512M -Xmx1024M -server -XX:+UseParallelGC'
+
+ExecStart=/bin/sh /opt/tomcat9/bin/startup.sh
+ExecStop=/bin/sh /opt/tomcat9/bin/shutdown.sh
+
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Ensure ubuntu owns the Tomcat directory
+chown -R ubuntu:ubuntu /opt/tomcat9
+
+# Optional: Make WAR files executable (not typically required)
+chmod +x /opt/tomcat9/webapps/*.war
+
+# Reload systemd to register the new service
+systemctl daemon-reload
+
+# Enable and start the Tomcat service
+systemctl enable tomcat
+systemctl start tomcat
